@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <script>
+    var strA = '10101101';
+    var strB = '?????';
+
+
+
+    function fun(strA, strB) {
+      var arrB = [];      //存储strB的所有可能
+      var newArr = [];    //当出现?时  用来临时存储的 数组
+      var num = 0;        //记录是不是第一次
+      var acc = 0;        //记录匹配的总次数
+      var len = strB.length;    //strB长度      并且最后strA 包装类substr方法中  截取长度  
+      var regA = /^[01]{1,50}$/g;     //检测 strA 是否匹配
+      var regB = /^[01\?]{1,5}$/g;    //检测 strB 是否匹配
+
+
+      //检测  输入的  strA 和  strB 是否比配
+      if (!regA.test(strA)) {
+        console.log('strA 格式 不匹配');
+        return
+      }else{
+        console.log('strA:'+strA);
+      }
+      if (!regB.test(strB)) {
+        console.log('strB 格式不匹配');
+        return;
+      }else{
+        console.log('strB:'+strB);
+      }
+
+
+      //得到arrB存储 strB 的所有可能
+      for (var i = 0; i < strB.length; i++) {
+        if (strB.charAt(i) === '?' && num === 0) {    //如果 匹配strB第一位是   ? 添加两个    到arrB   例如 1?   2?
+          num++;
+          var reg = new RegExp('^([01]{' + i + '})([?]{1})([01?]*)$', 'g');
+          // console.log(reg);
+          arrB.push(strB.replace(reg, function (a, $1, $2, $3) {
+            return $1 + '1' + $3;
+          }));
+          arrB.push(strB.replace(reg, function (a, $1, $2, $3) {
+            return $1 + '0' + $3;
+          }));
+
+          // console.log(arrB);
+          // strB.replace(/ /,1);
+          // arrB.push
+        } else if (strB.charAt(i) === '?' && num !== 0) {   //当匹配的不是第一次的时候  arrB 里面 一定有值的时候   遍历数组  中的每一位,
+                                                            //替换数组中每一位 i 位置?       newArr向数组中push   例如  00 01 10 11  四维  
+
+          var reg = new RegExp('^([01]{' + i + '})([?]{1})([01?]*)$', 'g');
+
+          arrB.forEach(val => {
+            // console.log(val);
+            newArr.push(val.replace(reg, function (a, $1, $2, $3) {
+              return $1 + '1' + $3;
+            }));
+            newArr.push(val.replace(reg, function (a, $1, $2, $3) {
+              return $1 + '0' + $3;
+            }));
+          });
+
+              //arrB存储  所有strB的可能    始终用  arrB 存储全部可能   这里  将  newArr克隆给  arrB    然后给newArr  赋值一个空  下一次  ? 时还用他
+          for (var j = 0; j < newArr.length; j++) {
+            arrB[j] = newArr[j];
+          }
+          newArr = [];
+
+
+        }else if(strB.charAt(i) !== '?' && num === 0){//如果  匹配strB第一个  不是？   arrB 添加一个  strB即可
+          num++;
+          arrB.push(strB);
+        }else{    //如果  匹配strB  不是第一位的地方   也不是  ？ arrB 不需要改变    over
+          //没啥事要干
+        }
+      }
+      
+      console.log('strB的所有可能:');
+      console.log(arrB);
+      
+      //strA 遍历 strB中的每一位   有相等的就  +1 
+      
+      arrB.forEach(ele => { 
+        for(var i = 0; i < strA.length; i++) {    //strA 遍历数组 中的每一位  ===    acc  就加一  
+        var reg = '';
+          if(strA.substr(i,len) === ele){
+            console.log(ele+'匹配成功');
+            acc ++;
+          }
+        }
+      });
+      console.log('strB的可匹配次数:'+acc);
+      return acc;
+    };
+
+
+
+
+
+    fun(strA, strB);
+  </script>
+</body>
+
+</html>
